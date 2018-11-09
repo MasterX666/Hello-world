@@ -1,0 +1,102 @@
+#include<bits/stdc++.h>
+using namespace std;
+
+typedef struct node
+{
+    int data;
+    struct node *Lchild;
+    struct node *Rchild;
+}*BiTree,BiNode;
+
+int Mark_Root_Pos(int in[], int  post[], int n);
+int PrintfPreOrder(BiTree root);
+BiTree Creat_Tree(int in[], int post[], int n);
+
+int Mark_Root_Pos(int pre[], int in[], int n)
+{
+    int i;
+    char ch;
+    for(i=0, ch=pre[0]; i<n; i++) //后序遍历最后一个是根节点
+    {
+        if(in[i]==ch)                   //相等中序i的左边是根节点的左子树，右边是右子树
+        {
+            return i;
+        }
+    }
+    return 0;
+
+}
+ int PrintfPreOrder(BiTree root)
+{
+    if(root)
+    {
+         printf("%c", root->data);
+        PrintfPreOrder(root->Lchild);
+        PrintfPreOrder(root->Rchild);
+
+
+    }
+    return 0;
+}
+BiTree Creat_Tree(int pre[], int in[], int n)
+{
+    BiTree root;
+    int i;
+    if(n==0)
+        return NULL;
+    i=Mark_Root_Pos(pre,in, n);
+    root = (BiTree)malloc(sizeof(BiNode));
+    root->data = pre[0];
+    root->Lchild = Creat_Tree(pre+1,in,i);
+    root->Rchild = Creat_Tree(pre+i+1,in+i+1, n-i-1);  //因为post的i之前的都一定是左子树的值，所以post+i就移动到了右子树上了，始终是从最后一个进行判断
+    return root;
+}
+
+
+int main()
+{
+    char s1[1000];
+    char s2[1000];
+    int in[10001],pre[10001];
+    gets(s1);
+    gets(s2);
+
+    int l1=strlen(s1);
+    int num=0;
+    int k=0;
+    for(int i=0;i<l1;i++)
+    {
+        if(s1[i]>='0'&&s1[i]<='9')
+        {
+            num=num*10+(s1[i]-'0');
+        }
+        else
+        {
+            in[k++]=num;
+            num=0;
+        }
+    }
+    in[k]=num;
+
+    int l2=strlen(s2);
+    num=0;
+    k=0;
+    for(int i=0;i<l2;i++)
+    {
+        if(s2[i]>='0'&&s2[i]<='9')
+        {
+            num=num*10+(s2[i]-'0');
+        }
+        else
+        {
+            pre[k++]=num;
+            num=0;
+        }
+    }
+    pre[k]=num;
+
+    BiTree root;
+    root = Creat_Tree(in,pre,k+1);
+    PrintfPreOrder(root);
+    return 0;
+}
