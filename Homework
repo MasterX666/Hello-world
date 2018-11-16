@@ -182,6 +182,70 @@ void postorderNoRecursion(BiTreeNode* t)//非递归后序遍历，t:根
 
 }
 
+int length(BiTreeNode* node)
+{
+	if(node==NULL)
+	return 0;
+	int l=length(node->lchild);
+	int r=length(node->rchild);
+	return l>r?l+1:r+1;
+}
+
+bool IsCompleteTree(BiTreeNode* root)
+{
+	if(root==NULL)
+        return true;
+    bool leaf=false;//leaf变量用来标记一个状态是否发生（只要当前节点的左孩子和右孩子都为空或者左孩子不为空，右孩子为空时，这个状态就发生，只要发生了这个状态，以后访问到的节点必须都是叶节点）
+    queue <BiTreeNode*>q;//通过队列q实现二叉树的层次遍历，通过层次遍历来判断是否为完全二叉树
+    q.push(root);//加入头节点
+    while (!q.empty())
+    {
+        BiTreeNode* p=q.front();
+        q.pop();
+        if((leaf&&(p->lchild!=NULL||p->rchild!=NULL))||(p->lchild==NULL&&p->rchild!=NULL))//这些判断条件是所有的不满足是完全二叉树的条件。条件一（第二个||前面的条件）：上述的状态已经发生，但是当前访问到的节点不是叶节点（有左孩子或者右孩子）。条件二：当前节点有右孩子，没有左孩子
+            return false ;
+        if(p->lchild!=NULL)//左孩子不为空，加入到队列中去
+            q.push(p->lchild);
+        if(p->rchild!=NULL)//右孩子不为空，加入到队列中去
+            q.push(p->rchild);
+        if((p->lchild!=NULL&&p->rchild==NULL)||(p->lchild==NULL&&p->rchild==NULL))//这个if语句就是判断状态是否要发生
+            leaf=true;
+    }
+    return true;
+
+
+}
+
+//递归
+bool IsFullBinaryTree(BiTreeNode* root)
+{
+	return (root == NULL) ||
+		(root != NULL && IsFullBinaryTree(root->lchild) &&
+		 IsFullBinaryTree(root->rchild)) &&
+		 length(root->lchild) == length(root->rchild);
+}
+
+bool GoThroughTree(BiTreeNode* root)
+{
+    bool s=true;
+    if(root!=NULL)
+    {
+        if(root->lchild!=NULL)
+        {
+            if(root->lchild->data>=root->data)
+               s=false;
+        }
+        if(root->rchild!=NULL)
+        {
+            if(root->data>=root->rchild->data)
+                s=false;
+        }
+        if(s==false) return s;
+        else s=GoThroughTree(root->lchild)&&GoThroughTree(root->rchild);
+    }
+    return s;
+}
+
 int main()
 {
     BiTreeNode* root;
@@ -189,17 +253,28 @@ int main()
     scanf("%s",inOrder);
     int l=strlen(PreOrder);
     root=BiTreeFromOrderingsPre(inOrder,PreOrder,l);
-    r_preorder(root);
-    cout<<endl;
-    r_inorder(root);
-    cout<<endl;
-    r_postorder(root);
-    cout<<endl;
-    hierachicalorder(root);
-    cout<<endl;
+    cout<<"用非递归实现前序遍历的结果为:";
     preorderNoRecursion(root);
     cout<<endl;
+    cout<<"用非递归实现中序遍历的结果为:";
     inorderNoRecursion(root);
     cout<<endl;
+    cout<<"用非递归实现后序遍历的结果为:";
     postorderNoRecursion(root);
+    cout<<endl;
+    cout<<"树的层次遍历结果为:";
+    hierachicalorder(root);
+    cout<<endl;
+    cout<<"结点的数目为"<<l<<endl;
+    cout<<"树的高度为"<<length(root)-1<<endl;
+    bool k;
+    k=IsCompleteTree(root);
+    if(k) cout<<"这是一个完全二叉树"<<endl;
+    else cout<<"这不是一个完全二叉树"<<endl;
+    k=IsFullBinaryTree(root);
+    if(k) cout<<"这是一个满二叉树"<<endl;
+    else cout<<"这不是一个满二叉树"<<endl;
+    k=GoThroughTree(root);
+    if(k) cout<<"这个树满足左子树上的结点的值都小于根，右子树上的结点的值都大于根 "<<endl;
+    else cout<<"这个树不满足左子树上的结点的值都小于根，右子树上的结点的值都大于根 "<<endl;
 }
