@@ -277,4 +277,5 @@ int main()
     k=GoThroughTree(root);
     if(k) cout<<"这个树满足左子树上的结点的值都小于根，右子树上的结点的值都大于根 "<<endl;
     else cout<<"这个树不满足左子树上的结点的值都小于根，右子树上的结点的值都大于根 "<<endl;
+    cout<<"将二叉树转换成森林的结果为:"<<endl;
 }
