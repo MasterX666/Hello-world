@@ -1,0 +1,274 @@
+#include<bits/stdc++.h>
+using namespace std;
+#define MAX 1024
+#define NIL NULL
+
+
+char PreOrder[MAX];//"ABDECGHI" 示例1的前序：“ABCDEFSGHIJKLMNO”
+char inOrder[MAX];//"DBEACHGI" 示例1的中序：“BCDASFHIJGEMNOLK”
+char postOrder[MAX];//"DEBHIGCA"
+
+//建立森林
+typedef struct nodeParent{
+char data;
+int parent;
+}NODE_PARENT;
+
+typedef struct linkNode {
+char data;
+int c;//表示有几个叶子节点
+struct linkNode *child[10];
+struct linkNode *parent;
+
+}LINK_NODE;
+
+LINK_NODE *addr_NODE[100];//用一个数组addr_NODE来记录每个结点的指针
+
+LINK_NODE *creatTreeFromParent(NODE_PARENT inputTree[],int m,int n)//构建该树
+{
+int i,j;
+for (i = 0 ; i < n ; i ++)
+{
+   addr_NODE[i]=(LINK_NODE*)malloc(sizeof(LINK_NODE));
+   addr_NODE[i]->data = inputTree[i].data;
+   addr_NODE[i]->c=0;
+    for (j = 0 ; j < m ; j ++) addr_NODE[i]->child[j] = NULL;
+}
+//将叶子节点存入父节点child数组中去
+for(i = 1 ; i < n ; i ++)
+{
+    int num=inputTree[i].parent;
+    addr_NODE[num]->child[addr_NODE[num]->c]=addr_NODE[i];
+    addr_NODE[num]->c++;
+
+}
+
+return addr_NODE[0];
+}
+
+
+typedef struct binaryTreeNode//二叉树结构
+{
+char data;//节点值
+struct binaryTreeNode *lchild;//左子节点
+struct binaryTreeNode *rchild;//右子节点
+//根据需要加入其它字段
+//int ltag,rtag;
+//int level;//层次
+}BiTreeNode; //树的结构
+
+typedef struct LRtagBiTree//左右标志表示树节点
+{
+int ltag;
+char data;
+int rtag;
+}LRBTree;
+
+
+BiTreeNode * initial()//树节点初始化
+{
+BiTreeNode* node;
+node=(BiTreeNode *)malloc(sizeof(BiTreeNode));
+node->lchild=NIL;
+node->rchild=NIL;
+//node->level=0;
+//node->parent='\0';
+//node->data='\0';
+return node;
+}
+
+
+BiTreeNode* beta(LINK_NODE *p,LINK_NODE *q,LINK_NODE *r)
+{
+    BiTreeNode *t;
+    if(p==NULL) return NULL;
+    t=initial();
+    t->data=p->data;
+    t->lchild=beta(p->child[0],p->child[1],p->child[2]);
+    t->rchild=beta(q,r,NULL);
+    return t;
+}
+
+BiTreeNode* BiTreeFromOrderingsPre(char* inorder, char* preorder, int
+length)//根据前序中序生成子树
+{
+    if(length==0)
+	return NULL;
+	BiTreeNode* node=new BiTreeNode;
+	node->data=*preorder;
+	int i=0;
+	for(;i<length;i++)
+	{
+		if(inorder[i]==*preorder)
+		break;
+	}
+	node->lchild=BiTreeFromOrderingsPre(inorder,preorder+1,i);
+	node->rchild=BiTreeFromOrderingsPre(inorder+i+1,preorder+i+1,length-i-1);
+	return node;
+}
+
+BiTreeNode* BiTreeFromOrderingsPost(char* inorder, char* postorder, int
+length)//根据前序后序生成子树
+{
+    }
+
+BiTreeNode* BiTreeFromLRtag()
+{
+
+}
+
+void r_preorder(BiTreeNode* t) //递归前序遍历，t:根
+{
+    int i;
+    if(t!=NULL)
+    {
+        printf("%c",t->data);
+        r_preorder(t->lchild);
+        r_preorder(t->rchild);
+    }
+}
+
+void r_inorder(BiTreeNode* t) //递归中序遍历，t:根
+{
+    int i;
+    if(t!=NULL)
+    {
+
+        r_inorder(t->lchild);
+        printf("%c",t->data);
+        r_inorder(t->rchild);
+    }
+}
+
+void r_postorder(BiTreeNode* t) //递归后序遍历，t:根
+{
+    int i;
+    if(t!=NULL)
+    {
+
+        r_postorder(t->lchild);
+        r_postorder(t->rchild);
+        printf("%c",t->data);
+    }
+}
+
+void hierachicalorder(BiTreeNode* t)//层次遍历，t:根
+{
+   BiTreeNode* q[100],*p ;
+     int head,tail,i;
+     if (t==NULL) return;
+     q[0]=t; head=0; tail=1; //队列
+      while (head<tail)
+      { p=q[head++]; //出队
+         printf("%c",p->data);
+         if(p ->lchild!= NULL)
+           q[tail++] = p ->lchild;
+         if(p ->rchild!= NULL)
+           q[tail++] = p ->rchild;
+        }
+}
+
+void preorderNoRecursion(BiTreeNode* t)//非递归前序遍历，t:根
+{
+      stack<BiTreeNode*> s;
+    BiTreeNode* p=t;
+    while(p!=NULL||!s.empty())
+    {
+        while(p!=NULL)
+        {
+            cout<<p->data;
+            s.push(p);
+            p=p->lchild;
+        }
+        if(!s.empty())
+        {
+            p=s.top();
+            s.pop();
+            p=p->rchild;
+        }
+    }
+}
+
+void inorderNoRecursion(BiTreeNode *t)//非递归中序遍历，t:根
+{
+    stack<BiTreeNode *> s;
+    BiTreeNode *p=t;
+    while(p!=NULL||!s.empty())
+    {
+        while(p!=NULL)
+        {
+            s.push(p);
+            p=p->lchild;
+        }
+        if(!s.empty())
+        {
+            p=s.top();
+            cout<<p->data;
+            s.pop();
+            p=p->rchild;
+        }
+    }
+}
+void postorderNoRecursion(BiTreeNode* t)//非递归后序遍历，t:根
+{
+    BiTreeNode* p = t, *r = NULL;
+    stack<BiTreeNode* > s;
+    while (p || !s.empty()) {
+        if (p) {//走到最左边
+            s.push(p);
+            p = p->lchild;
+        }
+        else {
+            p = s.top();
+            if (p->rchild && p->rchild != r)//右子树存在，未被访问
+                p = p->rchild;
+            else {
+                s.pop();
+                cout<<p->data;
+                r = p;//记录最近访问过的节点
+                p = NULL;//节点访问完后，重置p指针
+            }
+        }//else
+    }//while
+
+}
+
+
+int main()
+{
+    LINK_NODE *root;
+    NODE_PARENT inputTree[100];
+    int k;
+    cin>>k;
+
+for(int i=0;i<k;i++)
+{
+    int num;
+    char c;
+    cin>>num;
+    cin>>c;
+    inputTree[i].data=c;
+    inputTree[i].parent=num;
+
+}
+
+root=creatTreeFromParent(inputTree,3,k);//建树
+
+
+BiTreeNode* rt;
+cout<<endl;
+rt=beta(root,NULL,NULL);
+r_preorder(rt);
+    cout<<endl;
+    r_inorder(rt);
+    cout<<endl;
+    r_postorder(rt);
+    cout<<endl;
+    hierachicalorder(rt);
+    cout<<endl;
+    preorderNoRecursion(rt);
+    cout<<endl;
+    inorderNoRecursion(rt);
+    cout<<endl;
+    postorderNoRecursion(rt);
+}
